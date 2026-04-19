@@ -37,14 +37,14 @@ class BookInDBBase(BookBase):
     published_year: int
     author_id: int
     cover_image: str | None = None
-    created_at = datetime
-    update_at = datetime
+    created_at: datetime
+    update_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class Book(BookInDBBase):
     """Schema return for client"""
-    author = Author
-    category = Category
+    author: Author
+    category: Category
