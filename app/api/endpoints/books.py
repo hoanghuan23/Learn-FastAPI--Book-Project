@@ -45,3 +45,93 @@ def list_books(
         )
     books = query.offset(skip).limit(limit).all()
     return books
+
+@router.get("/{book_id}", response_model=Book)
+def get_book(
+    book_id: int,
+    db: Session = Depends(get_db)
+):
+    book = db.query(models.Book).filter(models.Book.id == book_id).first()
+    if not book:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
+    return book
+
+@router.post("/", response_model=Category, status_code=status.HTTP_201_CREATED)
+def create_book(
+    book_in: BookCreate,
+    db: Session = Depends(get_db)
+): 
+    """Create a new category"""
+    author = db.query(models.Author).filter(models.Author.id == book_in.author_id.name).first()
+
+
+    if not author:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="Author with this ID does not exist"
+        )
+    
+    category = db.query(models.Category).filter(models.Category.id == book_in.category_id).first()
+
+
+    if not category:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="Category with this ID does not exist"
+        )
+    
+    book = models.Book(
+        title=book_in.title,
+        description=book_in.description,
+        published_year=book_in.published_year,
+        author_id=book_in.author_id,
+        category_id=book_in.category_id
+    )
+    db.add(book)
+    db.commit()
+    db.refresh(book)
+    return book
+
+
+@router.put("/{category_id}", response_model=Category)
+def update_category(
+    category_id: int,
+    category_up: CategoryUpdate,
+    db: Session = Depends(get_db)
+): 
+    """Update an existing category"""
+    category = db.query(models.Category).filter(models.Category.id == category_id).first()
+
+
+    if category_up.name is not None and category_up.name != category.name:
+        existing =  db.query(models.Category).filter(models.Category.name == category_up.name).first()
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, 
+                detail="Another category with this name already exists"
+            )
+        category.name = category_up.name    
+    
+    if category_up.description is not None:
+        category.description = category_up.description
+    db.add(category)
+    db.commit()
+    db.refresh(category)
+    return category
+
+@router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_category(
+    category_id: int,
+    db: Session = Depends(get_db)
+): 
+    """Update an existing category"""
+    category = db.query(models.Category).filter(models.Category.id == category_id).first()
+    if not category:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Category not found"
+        )
+
+
+    db.delete(category)
+    db.commit()
