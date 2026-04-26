@@ -20,7 +20,7 @@ def list_categories(
     return categories
 
 @router.get("/{category_id}", response_model=Category)
-def get_category(category_id: int, db: Session):
+def get_category(category_id: int, db: Session = Depends(get_db)):
     category = db.query(models.Category).filter(models.Category.id == category_id).first()
     if not category:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")

@@ -20,7 +20,7 @@ def list_authors(
     return authors
 
 @router.get("/{author_id}", response_model=Author)
-def get_author(author_id: int, db: Session):
+def get_author(author_id: int, db: Session = Depends(get_db)):
     author = db.query(models.Author).filter(models.Author.id == author_id).first()
     if not author:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")

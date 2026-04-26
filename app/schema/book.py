@@ -6,10 +6,10 @@ from app.schema.category import Category
 
 class BookBase(BaseModel):
     title: str
-    description: str
-    published_year: str
-    category_id: str
-    author_id: str
+    description: str | None = None
+    published_year: int | None = None
+    category_id: int
+    author_id: int
 
 
 class BookCreate(BookBase):
@@ -38,7 +38,7 @@ class BookInDBBase(BookBase):
     author_id: int
     cover_image: str | None = None
     created_at: datetime
-    update_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True

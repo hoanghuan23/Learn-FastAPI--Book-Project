@@ -8,6 +8,8 @@ app = FastAPI(
     version="1.0.0",
 )
 
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
 app.include_router(authors.router, prefix='/authors', tags=["authors"])
 app.include_router(categories.router, prefix='/categories' ,tags=["categories"])
 app.include_router(books.router, prefix='/books', tags=["books"])  
